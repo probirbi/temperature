@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Task</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="jquery-3.5.1.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.css
+    "/>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css"/>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+
+</head>
+<body>
+
+<div class="container">
+    <br>
+    <h2 class="text-center">Temperature Node</h2>
+    <div class="col-sm-12">
+
+        <table id="example" class="table table-striped table-bordered" style="width:100%">
+                    <thead>
+                        <th>Timestamp</th>
+                        <th>Temperature in Celcius</th>
+                        <th>Temperature in Fahrenheit</th>
+                        <th>Humidity</th>
+                    </thead>
+
+                    <tbody>
+                        <tr th:each="data : ${sensors}">
+                        <td th:text="${data.timestamp}"></td>
+                            <td th:text="${data.temperatureCelsius}"></td>
+                            <td th:text="${data.temperatureFahrenheit}"></td>
+                            <td th:text="${data.humidity}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+
+    </div>
+</div>
+</body>
+<script>
+$(document).ready(function() {
+$('#example').DataTable();
+} );
+</script>
+
+
+</html>

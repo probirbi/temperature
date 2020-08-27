@@ -19,8 +19,8 @@ public class TestData {
     public static void callPost() {
         for (int i = 0 ; i < 10 ; i++) {
            Random random = new Random();
-            double rangeMin = -10.00;
-            double rangeMax = 40.00;
+            double rangeMin = -100.00;
+            double rangeMax = 100.00;
 
             DecimalFormat decimalFormat = new DecimalFormat("#.##");
             double temperature = rangeMin + (rangeMax - rangeMin) * random.nextDouble();
