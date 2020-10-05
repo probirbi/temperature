@@ -7,8 +7,10 @@ import lombok.Setter;
 @Getter
 public class Sensor {
 
-    private String timestamp;
+    private String timeStamp;
     private double temperatureCelsius;
     private double temperatureFahrenheit;
     private double humidity;
+    //private String blockNumber;
+    private String hash;
 }
