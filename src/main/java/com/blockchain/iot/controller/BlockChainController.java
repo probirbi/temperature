@@ -1,6 +1,9 @@
 package com.blockchain.iot.controller;
 
-import com.blockchain.iot.model.*;
+import com.blockchain.iot.model.Block;
+import com.blockchain.iot.model.BlockType;
+import com.blockchain.iot.model.Trust;
+import com.blockchain.iot.util.BlockChainAlgorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,27 +51,38 @@ public class BlockChainController {
         return blockChain;
     }
 
+    @PostMapping("/addInLocalBlockChain")
+    public Block addInLocalBlockChain(@RequestBody Block block) {
+        block.mineBlock(prefix);
+        if (blockChain.size() == 0) {
+            block.setPreviousHash("0");
+        } else {
+            block.setPreviousHash(blockChain.get(blockChain.size() - 1).getHash());
+        }
+
+        block.setBlockNumber(blockChain.size() + 1);
+        blockChain.add(block);
+        return block;
+    }
+
     @PostMapping("/broadcast")
     public Block broadcast(@RequestBody Block block) {
-        if (block.getNode() >= 1 && block.getNode() <= 3) {
+      //  if (block.getNode() >= 1 && block.getNode() <= 3) {
             if (blockChain.size() > 0) {
-                if (validate(block)) {
-                    blockChain.add(block);
+                if (!BlockChainAlgorithm.exists(block, blockChain) && BlockChainAlgorithm.validate(block, blockChain)) {
+                    if (block.getBlockType().equals(BlockType.TRUST)) {
+                        if (BlockChainAlgorithm.validateTrustBlock(block, blockChain)) {
+                            blockChain.add(block);
+                        }
+                    } else {
+                        blockChain.add(block);
+                    }
                 }
             } else {
                 blockChain.add(block);
             }
-        }
+      //  }
         return block;
-    }
-
-    private boolean validate(Block block) {
-        for (int i = 0; i < blockChain.size(); i++) {
-            if (block.getPreviousHash().equals(blockChain.get(i).getHash())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @PostMapping("/blockchain")
@@ -76,7 +90,7 @@ public class BlockChainController {
 
         String create = request.getParameter("create");
         if (blockChain.size() == 0) {
-       //     Block blockNew = new Block(block.getDescription(), block.getData(), "0", new Date().getTime(), block.getNode());
+            //     Block blockNew = new Block(block.getDescription(), block.getData(), "0", new Date().getTime(), block.getNode());
             Block blockNew = block;
             blockNew.setPreviousHash("0");
             blockNew.setBlockNumber(1);
@@ -87,7 +101,7 @@ public class BlockChainController {
             }
             return blockNew;
         } else {
-    //        Block blockNew = new Block(block.getDescription(), block.getData(), blockChain.get(blockChain.size() - 1).getHash(), new Date().getTime(), block.getNode());
+            //        Block blockNew = new Block(block.getDescription(), block.getData(), blockChain.get(blockChain.size() - 1).getHash(), new Date().getTime(), block.getNode());
             Block blockNew = block;
             blockNew.setPreviousHash(blockChain.get(blockChain.size() - 1).getHash());
             blockNew.setBlockNumber(blockChain.size() + 1);
@@ -100,45 +114,8 @@ public class BlockChainController {
         }
     }
 
-    @PostMapping("/blockchain/updaterating")
-    public String updateBlockchain(@RequestBody Block block) {
-
-        System.out.println("updaterating");
-        System.out.println(block.getHash());
-        System.out.println(block.getRating());
-        for (int i = 0; i < blockChain.size(); i++) {
-            if (block.getHash().equals(blockChain.get(i).getHash())) {
-                blockChain.get(i).setRating(block.getRating());
-                break;
-            }
-        }
-
-        return "rating updated in blockchain";
-    }
-
-    @PostMapping("/blockchainevaluatenode")
-    public String saveBlockchain(@RequestParam int node) {
-        for (int i = 0; i < blockChain.size(); i++) {
-            if (node == blockChain.get(i).getNode()) {
-                switch (node) {
-                    case 1:
-                        evaluationLogicOne(blockChain.get(i));
-                        break;
-                    case 2:
-                        evaluationLogicTwo(blockChain.get(i));
-                        break;
-                    case 3:
-                        evaluationLogicThree(blockChain.get(i));
-                        break;
-                }
-            }
-        }
-        return "Node " + node + " evaluated";
-
-    }
-
     @GetMapping("/evaluatenode")
-    public List<Trust> evaluatenode(@RequestParam int node, @RequestParam int nodeFrom) {
+    public List<Trust> evaluatenode(@RequestParam Integer node, @RequestParam Integer nodeFrom) {
 
         DecimalFormat decimalFormat = new DecimalFormat("#.##");
 
@@ -147,7 +124,7 @@ public class BlockChainController {
         double trustScore = 0.0;
         double totalRating = 0.0;
         int ratingCount = 0;
-        System.out.println(node);
+     //   System.out.println(node);
 
         for (int i = 0; i < blockChain.size(); i++) {
             if (node == blockChain.get(i).getNode()) {
@@ -155,19 +132,18 @@ public class BlockChainController {
                 totalRating = totalRating + blockChain.get(i).getRating();
             }
         }
-        System.out.println(ratingCount);
-        System.out.println(totalRating);
+      //  System.out.println(ratingCount);
+       // System.out.println(totalRating);
         trustScore = totalRating / ratingCount;
 
-        System.out.println("trustscore");
-        System.out.println(trustScore);
+      //  System.out.println("trustscore");
+     //   System.out.println(trustScore);
         for (int i = 0; i < blockChain.size(); i++) {
             if (node == blockChain.get(i).getNode()) {
                 blockChain.get(i).setTrustScore(new Double(decimalFormat.format(trustScore)));
-                System.out.println("updated");
+      //          System.out.println("updated");
             }
         }
-
 
         double temperatureScore = 0.0;
         double smartHomeScore = 0.0;
@@ -190,9 +166,9 @@ public class BlockChainController {
 
             if (blockChain.get(i).getNode() == 2) {
                 smartHomeScore = blockChain.get(i).getTrustScore();
-            } else if (blockChain.get(i).getNode() == 1) {
+            } else  if (blockChain.get(i).getNode() == 1) {
                 temperatureScore = blockChain.get(i).getTrustScore();
-            } else if (blockChain.get(i).getNode() == 3) {
+            } else  if (blockChain.get(i).getNode() == 3) {
                 parkingSpaceScore = blockChain.get(i).getTrustScore();
             }
 
@@ -212,7 +188,7 @@ public class BlockChainController {
             trusts.add(trust);
         }
 
-        if (nodeFrom != 2) {
+        if (nodeFrom != 2){
             Trust trust = new Trust();
             trust.setNode("Smart Home Node");
             trust.setServiceName("smartHomes");
@@ -236,42 +212,44 @@ public class BlockChainController {
             ObjectMapper mapper = new ObjectMapper();
 
             try {
-                mapper.writeValue(new File("G:\\Master Thesis\\blockchain-iot\\blockchain\\src\\main\\resources\\blockchain" + sdf.format(new Date()) + ".json"), blockChain);
+                mapper.writeValue(new File("G:\\Master Thesis\\blockchain-iot\\blockchain\\src\\main\\resources\\blockchain" + sdf.format(new Date())+ ".json"), blockChain);
                 blockChain = new ArrayList<Block>();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
+
+
         return trusts;
     }
 
     private void evaluationLogicOne(Block block) {
 
-        /*Sensor sensor = (Sensor) block.getSensor();
-        if (sensor.getTemperatureCelsius() >= 10 && sensor.getTemperatureCelsius() <= 20) {
-            block.setTrustScore(1.0);
-        } else {
-            block.setTrustScore(0.5);
-        }*/
+     //   Sensor sensor = (Sensor) block.getSensor();
+     //   if (sensor.getTemperatureCelsius() >= 10 && sensor.getTemperatureCelsius() <= 20) {
+     //       block.setTrustScore(1.0);
+     //   } else {
+     //       block.setTrustScore(0.5);
+     //   }
     }
 
     private void evaluationLogicTwo(Block block) {
-        /*SmartHome smartHome = (SmartHome) block.getSmartHome();
-        if (smartHome.getSmokeDetectors() >= 2 && smartHome.getDoorLocks() <= 2) {
-            block.setTrustScore(1.0);
-        } else {
-            block.setTrustScore(0.4);
-        }*/
+     //   SmartHome smartHome = (SmartHome) block.getSmartHome();
+     //   if (smartHome.getSmokeDetectors() >= 2 && smartHome.getDoorLocks() <= 2) {
+     //       block.setTrustScore(1.0);
+     //   } else {
+     //       block.setTrustScore(0.4);
+     //   }
     }
 
     private void evaluationLogicThree(Block block) {
      //   ParkingSpace parkingSpace = (ParkingSpace) block.getData();
      //   if (parkingSpace.getParkedSpace() > 250 && parkingSpace.getFreeSpace() < 100) {
      //       block.setTrustScore(1.0);
-     //   } else {
-     //       block.setTrustScore(0.2);
-     //   }
+      //  } else {
+      //      block.setTrustScore(0.2);
+       // }
     }
 
     @GetMapping("/trusts")
@@ -297,9 +275,9 @@ public class BlockChainController {
                     .equals(prefixString);
             if (blockChain.get(i).getNode() == 1) {
                 smartHomeScore = blockChain.get(i).getTrustScore();
-            } else if (blockChain.get(i).getNode() == 2) {
+            } else  if (blockChain.get(i).getNode() == 2) {
                 temperatureScore = blockChain.get(i).getTrustScore();
-            } else if (blockChain.get(i).getNode() == 3) {
+            } else  if (blockChain.get(i).getNode() == 3) {
                 parkingSpaceScore = blockChain.get(i).getTrustScore();
             }
 

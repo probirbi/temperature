@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 public class SmartHome {
 
-    private String timestamp;
+    private String timeStamp;
     private int smokeDetectors;
     private int doorLocks;
     private int windows;

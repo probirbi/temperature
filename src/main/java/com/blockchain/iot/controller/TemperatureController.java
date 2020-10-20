@@ -3,7 +3,7 @@ package com.blockchain.iot.controller;
 import com.blockchain.iot.data.TestData;
 import com.blockchain.iot.model.Block;
 import com.blockchain.iot.model.Sensor;
-import com.blockchain.iot.utils.FahrenheitToCelsius;
+import com.blockchain.iot.util.FahrenheitToCelsius;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -161,7 +161,7 @@ public class TemperatureController {
 
         Block block = null;
         try {
-            String url = "http://localhost:8081/blockchain?create=false";
+            String url = "http://localhost:8081/blockchain?create=false&nohash=true";
             HttpPost httpPost = new HttpPost(url);
             httpPost.setHeader("Content-type", "application/json");
             String json = "{" +
@@ -169,28 +169,26 @@ public class TemperatureController {
                     "\"previousHash\":" + "\"" + "" + "\"," +
                     "\"blockType\":" + "\"" + "SERVICE" + "\"," +
                     "\"blockNumber\":" + "0," +
-                    //"\"description\":" + "\"" + "Temperature Block" + "\"," +
                     "\"data\":" + "{" +
-                        "\"timestamp\":" + "\"" + sensor.getTimeStamp() + "\"," +
-                         "\"temperatureCelsius\":" + decimalFormat.format(sensor.getTemperatureCelsius()) + "," +
-                         "\"temperatureFahrenheit\":" + decimalFormat.format(sensor.getTemperatureFahrenheit()) + "," +
-                         "\"humidity\":" + decimalFormat.format(sensor.getHumidity()) +
+                            "\"timeStamp\":" + "\"" + sensor.getTimeStamp() + "\"," +
+                            "\"temperatureCelsius\":" + decimalFormat.format(sensor.getTemperatureCelsius()) + "," +
+                            "\"temperatureFahrenheit\":" + decimalFormat.format(sensor.getTemperatureFahrenheit()) + "," +
+                            "\"humidity\":" + decimalFormat.format(sensor.getHumidity()) +
                     "} ," +
                     "\"requestTimeStamp\":" + new Date().getTime() + "," +
                     "\"responseTimeStamp\":" + new Date().getTime() + "," +
                     "\"serviceRequestedBy\":" + "\"" + requestedBy + "\"," +
-                            "\"serviceResponseBy\":" + "\"" + "TemperatureNode" + "\"," +
-                            "\"ratingDoneBy\":" + "\"" + "" + "\"," +
-                            "\"evaluatedBy\":" + "\"" + "" + "\"," +
-                            "\"serviceProvidedBy\":" + "\"" + "TemperatureNode" + "\"," +
-                            "\"blockCreatedBy\":" + "\"" + requestedBy + "\"," +
+                    "\"serviceResponseBy\":" + "\"" + "TemperatureNode" + "\"," +
+                    "\"ratingDoneBy\":" + "\"" + "" + "\"," +
+                    "\"evaluatedBy\":" + "\"" + "" + "\"," +
+                    "\"serviceProvidedBy\":" + "\"" + "TemperatureNode" + "\"," +
+                    "\"blockCreatedBy\":" + "\"" + requestedBy + "\"," +
                     "\"timeStamp\":" + new Date().getTime() + "," +
-                   "\"description\":" + "\"" + "Temperature Block" + "\"," +
                     "\"nonce\":" + 0 + "," +
                     "\"node\":" + 1 + "," +
                     "\"trustScore\":" + null + "," +
                     "\"rating\":" + null + "," +
-                            "\"comment\":" + "\"" + "" + "\"" +
+                    "\"comment\":" + "\"" + "" + "\"" +
                     "}";
             System.out.println(json);
             httpPost.setEntity(new StringEntity(json));
@@ -206,14 +204,14 @@ public class TemperatureController {
                     Type type = new TypeToken<Block>() {
                     }.getType();
                     block = gson.fromJson(result, type);
-                    broadcast(block);
-                    sensor.setHash(block.getHash());
+                    //     broadcast(block);
+                    //     sensor.setHash(block.getHash());
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         return block;
     }
 

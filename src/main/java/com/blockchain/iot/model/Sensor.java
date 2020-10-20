@@ -11,6 +11,4 @@ public class Sensor {
     private double temperatureCelsius;
     private double temperatureFahrenheit;
     private double humidity;
-    //private String blockNumber;
-    private String hash;
 }

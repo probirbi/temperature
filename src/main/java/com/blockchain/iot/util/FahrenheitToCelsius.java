@@ -1,4 +1,4 @@
-package com.blockchain.iot.utils;
+package com.blockchain.iot.util;
 
 public class FahrenheitToCelsius {
 

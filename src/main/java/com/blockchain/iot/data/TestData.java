@@ -1,6 +1,6 @@
 package com.blockchain.iot.data;
 
-import com.blockchain.iot.utils.FahrenheitToCelsius;
+import com.blockchain.iot.util.FahrenheitToCelsius;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
